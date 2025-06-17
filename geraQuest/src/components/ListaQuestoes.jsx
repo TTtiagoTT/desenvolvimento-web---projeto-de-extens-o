@@ -98,7 +98,7 @@ export default function ListaQuestoes({ provaParaAluno, provaParaProfessor, nome
       </Paper>
 
       {/* --- COMPONENTES INVISÍVEIS (APENAS PARA GERAR O PDF) --- */}
-      <Box sx={{ border: '2px solid red', mt: 4 }}>
+      <Box sx={{ position: 'absolute', left: '-9999px', top: 0 }}>
         {/* sx={{ border: '2px solid red', mt: 4 }} PARA VER O PDF ANTES DE EXPORTAR  sx={{ position: 'absolute', left: '-9999px', top: 0 }}*/}
         <ConteudoProva
           id="prova-aluno-pdf"
