@@ -1,97 +1,95 @@
-import React, { useState } from 'react';
-import { Box, Button, Typography, CircularProgress, Stack, Divider, Chip } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Box, Button, Typography, CircularProgress, Stack, Divider, Chip, Alert } from '@mui/material';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import ConteudoProva from './ConteudoProva';
+import QuestaoEditavel from './QuestaoEditavel';
 
-// O prop onReset é novo!
-export default function ListaQuestoes({ questoes, nomeProfessor, dadosFormulario, onReset }) {
-  const [exportando, setExportando] = useState(null); // 'aluno', 'professor', ou null
+export default function ListaQuestoes({ questoes, nomeProfessor, dadosFormulario, onReset, onUpdateQuestao, onDeleteQuestao }) {
+  // Este estado controla se estamos no meio de uma exportação
+  const [preparandoPdf, setPreparandoPdf] = useState(null); // null, 'aluno', ou 'professor'
 
-  const handleExportPDF = (isGabarito) => {
-    const tipo = isGabarito ? 'professor' : 'aluno';
-    setExportando(tipo);
-
-    const elementId = isGabarito ? "prova-professor-pdf" : "prova-aluno-pdf";
-    const input = document.getElementById(elementId);
-    
-    const fileName = isGabarito 
-        ? `Gabarito_${dadosFormulario.tema.replace(/\s+/g, '_')}.pdf`
-        : `Prova_${dadosFormulario.tema.replace(/\s+/g, '_')}.pdf`;
-
-    if (!input) {
-      console.error("Elemento para exportação não encontrado!");
-      setExportando(null);
-      return;
-    }
-
-    html2canvas(input, { scale: 2, useCORS: true })
-      .then((canvas) => {
-        const imgData = canvas.toDataURL('image/png');
-        const pdf = new jsPDF('p', 'mm', 'a4');
-        const imgProperties = pdf.getImageProperties(imgData);
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pageHeight = pdf.internal.pageSize.getHeight();
-        const totalImgHeight = (imgProperties.height * pdfWidth) / imgProperties.width;
-        let heightLeft = totalImgHeight;
-        let position = 0;
-        pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, totalImgHeight);
-        heightLeft -= pageHeight;
-        while (heightLeft > 0) {
-          position -= pageHeight;
-          pdf.addPage();
-          pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, totalImgHeight);
-          heightLeft -= pageHeight;
+  // Este "hook" useEffect "escuta" as mudanças no estado 'preparandoPdf'
+  useEffect(() => {
+    // Se o estado não for nulo, significa que um botão de exportação foi clicado
+    if (preparandoPdf) {
+      const isGabarito = preparandoPdf === 'professor';
+      const elementId = isGabarito ? "prova-professor-pdf" : "prova-aluno-pdf";
+      
+      // Damos um pequeno tempo para o React renderizar o componente invisível no DOM
+      const timer = setTimeout(() => {
+        const input = document.getElementById(elementId);
+        if (!input) {
+          alert("Erro crítico: Elemento para exportação não foi encontrado.");
+          setPreparandoPdf(null); // Reseta o estado em caso de erro
+          return;
         }
-        pdf.save(fileName);
-      })
-      .catch(err => console.error("Erro ao gerar PDF: ", err))
-      .finally(() => setExportando(null));
-  };
+
+        const fileName = isGabarito 
+            ? `Gabarito_${dadosFormulario.tema.replace(/\s+/g, '_')}.pdf`
+            : `Prova_${dadosFormulario.tema.replace(/\s+/g, '_')}.pdf`;
+
+        html2canvas(input, { scale: 2, useCORS: true })
+          .then((canvas) => {
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const imgProperties = pdf.getImageProperties(imgData);
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pageHeight = pdf.internal.pageSize.getHeight();
+            const totalImgHeight = (imgProperties.height * pdfWidth) / imgProperties.width;
+            let heightLeft = totalImgHeight;
+            let position = 0;
+            pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, totalImgHeight);
+            heightLeft -= pageHeight;
+            while (heightLeft > 0) {
+              position -= pageHeight;
+              pdf.addPage();
+              pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, totalImgHeight);
+              heightLeft -= pageHeight;
+            }
+            pdf.save(fileName);
+          })
+          .catch(err => console.error("Erro ao gerar PDF: ", err))
+          .finally(() => setPreparandoPdf(null)); // Reseta o estado após a exportação
+      }, 100); // 100ms de espera
+
+      return () => clearTimeout(timer); // Limpa o timer se o componente for desmontado
+    }
+  }, [preparandoPdf, dadosFormulario, questoes, nomeProfessor]); // O hook só roda quando um desses valores muda
 
   return (
-    <Box>
+    <>
       <Box sx={{ textAlign: 'center' }}>
-        <CheckCircleOutlineIcon color="success" sx={{ fontSize: 60, mb: 2 }} />
-        <Typography variant="h5" gutterBottom>Prova Gerada com Sucesso!</Typography>
-        <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
-          Sua avaliação sobre "{dadosFormulario.tema}" com {questoes.length} questões está pronta para ser exportada.
-        </Typography>
-        
-        <Stack spacing={2} direction={{ xs: 'column', sm: 'row' }} justifyContent="center">
-            <Button variant="contained" color="primary" onClick={() => handleExportPDF(false)} disabled={!!exportando} startIcon={<PictureAsPdfIcon />}>
-              {exportando === 'aluno' ? <CircularProgress size={24} color="inherit" /> : 'Exportar Prova do Aluno'}
-            </Button>
-            <Button variant="outlined" color="primary" onClick={() => handleExportPDF(true)} disabled={!!exportando} startIcon={<PictureAsPdfIcon />}>
-              {exportando === 'professor' ? <CircularProgress size={24} /> : 'Exportar Gabarito'}
-            </Button>
-        </Stack>
-
-        <Divider sx={{ my: 4 }}>
-          <Chip label="OU" />
-        </Divider>
-        
-        <Button variant="text" onClick={onReset} startIcon={<AddCircleOutlineIcon />}>
-            Gerar Nova Prova
-        </Button>
+        <Typography variant="h5" component="h2" gutterBottom>Revisão da Prova</Typography>
+        <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>Visualize, edite ou exclua as questões geradas.</Typography>
       </Box>
+      <Divider sx={{ mb: 3 }} />
+      <Stack spacing={3}>
+        {questoes.map((q, index) => (
+          <QuestaoEditavel key={q.pergunta + index} index={index} questao={q} onUpdate={(qa) => onUpdateQuestao(index, qa)} onDelete={() => onDeleteQuestao(index)} />
+        ))}
+      </Stack>
+      {questoes.length === 0 && (<Alert severity="warning" sx={{ mt: 2 }}>Você excluiu todas as questões.</Alert>)}
+      <Divider sx={{ my: 4 }}><Chip label="Ações Finais" /></Divider>
+      <Stack spacing={2} direction={{ xs: 'column', sm: 'row' }} justifyContent="center">
+          <Button variant="contained" color="primary" onClick={() => setPreparandoPdf('aluno')} disabled={!!preparandoPdf || questoes.length === 0} startIcon={<PictureAsPdfIcon />}>
+            {preparandoPdf === 'aluno' ? <CircularProgress size={24} color="inherit" /> : 'Exportar Prova do Aluno'}
+          </Button>
+          <Button variant="outlined" color="primary" onClick={() => setPreparandoPdf('professor')} disabled={!!preparandoPdf || questoes.length === 0} startIcon={<PictureAsPdfIcon />}>
+            {preparandoPdf === 'professor' ? <CircularProgress size={24} /> : 'Exportar Gabarito'}
+          </Button>
+      </Stack>
+      <Box sx={{ textAlign: 'center', mt: 3 }}><Button variant="text" onClick={onReset} startIcon={<AddCircleOutlineIcon />}>Gerar Nova Prova</Button></Box>
 
-      {/* --- ATUALIZADO: Contêiner para neutralizar os componentes do PDF e não afetar o layout --- */}
-      <Box sx={{ 
-        position: 'fixed', 
-        top: 0, 
-        left: '100%', // Empurra o contêiner para fora da tela
-        width: 1,      // Largura e altura mínimas
-        height: 1, 
-        overflow: 'hidden', // Esconde qualquer conteúdo que "vaze"
-        zIndex: -1 
-      }}>
-        <ConteudoProva isGabarito={false} questoes={questoes} nomeProfessor={nomeProfessor} dadosFormulario={dadosFormulario}/>
-        <ConteudoProva isGabarito={true} questoes={questoes} nomeProfessor={nomeProfessor} dadosFormulario={dadosFormulario}/>
-      </Box>
-    </Box>
+      {/* ATUALIZAÇÃO FINAL: O componente de PDF só é renderizado no DOM quando estamos preparando para exportar */}
+      {preparandoPdf && (
+        <Box sx={{ position: 'fixed', top: 0, left: '-2000px', zIndex: -1 }}>
+          <ConteudoProva isGabarito={preparandoPdf === 'professor'} questoes={questoes} nomeProfessor={nomeProfessor} dadosFormulario={dadosFormulario} />
+        </Box>
+      )}
+    </>
   );
 }

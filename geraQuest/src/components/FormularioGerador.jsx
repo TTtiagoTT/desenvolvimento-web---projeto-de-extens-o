@@ -29,64 +29,36 @@ export default function FormularioGerador({ onSubmit, carregando }) {
     onSubmit(dadosParaApi);
   };
 
+// Em FormularioGerador.jsx
+// ... (toda a lógica antes do return continua a mesma) ...
   return (
     <Box component="form" onSubmit={handleSubmit}>
-      {/* --- Bloco 1: Informações da Prova --- */}
-      <Typography variant="h6" component="h3" gutterBottom>
-        Informações da Prova
-      </Typography>
+      <Typography variant="h6" component="h3" gutterBottom>Informações da Prova</Typography>
+      {/* ATUALIZADO: Removido o 'item' de todos os Grids filhos */}
       <Grid container spacing={2}>
-        <Grid item xs={12} md={6}>
-          <TextField margin="dense" label="Nome do Professor(a)" value={nomeProfessor} onChange={(e) => setNomeProfessor(e.target.value)} required fullWidth />
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <TextField margin="dense" label="Tema da Aula" value={tema} onChange={(e) => setTema(e.target.value)} required fullWidth />
-        </Grid>
-        <Grid item xs={12}>
-          <TextField margin="dense" label="Ano/Série" value={serie} onChange={(e) => setSerie(e.target.value)} required fullWidth />
-        </Grid>
+        <Grid xs={12} md={6}><TextField margin="dense" label="Nome do Professor(a)" value={nomeProfessor} onChange={(e) => setNomeProfessor(e.target.value)} required fullWidth /></Grid>
+        <Grid xs={12} md={6}><TextField margin="dense" label="Tema da Aula" value={tema} onChange={(e) => setTema(e.target.value)} required fullWidth /></Grid>
+        <Grid xs={12}><TextField margin="dense" label="Ano/Série" value={serie} onChange={(e) => setSerie(e.target.value)} required fullWidth /></Grid>
       </Grid>
 
-      {/* --- Bloco 2: Estrutura da Prova --- */}
-      <Typography variant="h6" component="h3" gutterBottom sx={{ mt: 4 }}>
-        Estrutura da Prova
-      </Typography>
+      <Typography variant="h6" component="h3" gutterBottom sx={{ mt: 4 }}>Estrutura da Prova</Typography>
       <Grid container spacing={2} alignItems="center">
-        <Grid item xs={12}>
+        <Grid xs={12}>
           <FormGroup row>
-            <FormControlLabel 
-              control={<Checkbox checked={tiposSelecionados.multipla_escolha} onChange={handleTipoChange} name="multipla_escolha" />} 
-              label="Múltipla Escolha" 
-            />
-            <FormControlLabel 
-              control={<Checkbox checked={tiposSelecionados.dissertativa} onChange={handleTipoChange} name="dissertativa" />} 
-              label="Dissertativa" 
-            />
+            <FormControlLabel control={<Checkbox checked={tiposSelecionados.multipla_escolha} onChange={handleTipoChange} name="multipla_escolha" />} label="Múltipla Escolha" />
+            <FormControlLabel control={<Checkbox checked={tiposSelecionados.dissertativa} onChange={handleTipoChange} name="dissertativa" />} label="Dissertativa" />
           </FormGroup>
         </Grid>
-
         {tiposSelecionados.multipla_escolha && (
-          <Grid item xs={12} sm={6}>
-            <TextField margin="dense" label="Qtd. Múltipla Escolha" type="number" value={qtdMultipla} onChange={(e) => setQtdMultipla(e.target.value)} InputProps={{ inputProps: { min: 1, max: 20 } }} required fullWidth />
-          </Grid>
+          <Grid xs={12} sm={6}><TextField margin="dense" label="Qtd. Múltipla Escolha" type="number" value={qtdMultipla} onChange={(e) => setQtdMultipla(e.target.value)} InputProps={{ inputProps: { min: 1, max: 20 } }} required fullWidth /></Grid>
         )}
         {tiposSelecionados.dissertativa && (
-          <Grid item xs={12} sm={6}>
-            <TextField margin="dense" label="Qtd. Dissertativas" type="number" value={qtdDissertativa} onChange={(e) => setQtdDissertativa(e.target.value)} InputProps={{ inputProps: { min: 1, max: 20 } }} required fullWidth />
-          </Grid>
+          <Grid xs={12} sm={6}><TextField margin="dense" label="Qtd. Dissertativas" type="number" value={qtdDissertativa} onChange={(e) => setQtdDissertativa(e.target.value)} InputProps={{ inputProps: { min: 1, max: 20 } }} required fullWidth /></Grid>
         )}
       </Grid>
       
-      {/* Botão de Ação no final de tudo */}
       <Box sx={{ mt: 4 }}>
-        <Button 
-          type="submit" 
-          variant="contained" 
-          disabled={carregando || (!tiposSelecionados.multipla_escolha && !tiposSelecionados.dissertativa)} 
-          fullWidth 
-          startIcon={<AutoFixHighIcon />}
-          sx={{ height: '56px', fontSize: '1rem' }}
-        >
+        <Button type="submit" variant="contained" disabled={carregando || (!tiposSelecionados.multipla_escolha && !tiposSelecionados.dissertativa)} fullWidth startIcon={<AutoFixHighIcon />} sx={{ height: '56px', fontSize: '1rem' }}>
           {carregando ? <CircularProgress size={24} color="inherit" /> : 'Gerar Prova com IA'}
         </Button>
       </Box>
