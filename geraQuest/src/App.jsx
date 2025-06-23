@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-// Garantindo que todos os imports necessários estão aqui
 import { CssBaseline, createTheme, ThemeProvider, responsiveFontSizes, Typography, Box, Grid, Paper } from '@mui/material';
 import FormularioGerador from './components/FormularioGerador';
 import ListaQuestoes from './components/ListaQuestoes';
 import axios from 'axios';
 
-// --- TEMA PROFISSIONAL 100% CORRIGIDO ---
+// O tema continua o mesmo
 let theme = createTheme({
   palette: {
     primary: { main: '#0052cc' },
@@ -17,7 +16,7 @@ let theme = createTheme({
     fontFamily: "'Poppins', sans-serif",
     h4: { fontWeight: 600 },
     h5: { fontWeight: 600 },
-    button: { fontWeight: 600, }
+    button: { fontWeight: 600 }
   },
   components: {
     MuiButton: {
@@ -37,17 +36,11 @@ let theme = createTheme({
     },
     MuiPaper: {
         styleOverrides: {
-          root: {
-            borderRadius: 12,
-          },
+          root: { borderRadius: 12, },
         },
     },
     MuiOutlinedInput: {
-      styleOverrides: {
-          root: {
-              borderRadius: 8,
-          },
-      }
+      styleOverrides: { root: { borderRadius: 8, } }
     },
     MuiChip: {
         styleOverrides: {
@@ -70,16 +63,22 @@ export default function App() {
   const [dadosForm, setDadosForm] = useState(null);
 
   const handleGerarQuestoes = async (dadosDoFormulario) => {
-    // ... (a função handleGerarQuestoes continua a mesma)
+    // A função agora está com a ordem correta
     setCarregando(true);
     setErro('');
     setQuestoes([]);
     setNomeProfessor(dadosDoFormulario.nomeProfessor);
-    setDadosForm(dadosDoFormulario);
+    // ATUALIZADO: A linha setDadosForm() FOI REMOVIDA DAQUI
+
     const urlApi = 'http://127.0.0.1:8000/gerar-questoes';
+    
     try {
       const response = await axios.post(urlApi, dadosDoFormulario);
-      setQuestoes(response.data.questoes);
+      
+      // ATUALIZADO: A tela só muda AGORA, depois que as questões foram recebidas.
+      setQuestoes(response.data.questoes); 
+      setDadosForm(dadosDoFormulario); // A linha foi movida para cá!
+
     } catch (error) {
       console.error("Ocorreu um erro ao chamar a API:", error);
       if (error.response) { setErro(`Erro do servidor: ${error.response.data.detail || 'Não foi possível gerar as questões.'}`);
@@ -93,19 +92,15 @@ export default function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Grid container direction="column" alignItems="center" justifyContent="center" sx={{ minHeight: '100vh', p: 2, backgroundColor: 'background.default' }}>
+      <Grid container direction="column" alignItems="center" justifyContent="flex-start" sx={{ minHeight: '100vh', pt: { xs: 4, sm: 8 }, pb: 4, px: 2, backgroundColor: 'background.default' }}>
         <Grid item xs={11} sm={10} md={8} lg={7} xl={6}>
-          
-          {/* --- Bloco 1: Cabeçalho da Página (Fora do Paper) --- */}
           <Box sx={{ textAlign: 'center', mb: 4 }}>
-            <img src="/logo.png" alt="Logotipo do Projeto" style={{ width: '190px', height: 'auto', marginBottom: '30px' }} />
+            <img src="/logo.png" alt="Logotipo do Projeto" style={{ width: '190px', height: 'auto', marginBottom: '16px' }} />
             <Typography variant="h4" component="h1" gutterBottom>Gerador de Provas</Typography>
             <Typography variant="subtitle1" color="text.secondary">Crie avaliações personalizadas com o poder da IA</Typography>
           </Box>
-
-          {/* --- Bloco 2: Conteúdo Principal da Aplicação (Dentro do Paper) --- */}
-          <Paper elevation={4} sx={{ p: { xs: 3, sm: 5 }, width: '100%', borderRadius: 3 }}>
-            
+          
+          <Paper elevation={4} sx={{ p: { xs: 3, sm: 5 }, width: '100%' }}>
             {!dadosForm ? (
                 <FormularioGerador onSubmit={handleGerarQuestoes} carregando={carregando} />
             ) : (
@@ -116,15 +111,12 @@ export default function App() {
                     onReset={() => setDadosForm(null)}
                 />
             )}
-            
             {erro && <Typography color="error" align="center" sx={{ mt: 2 }}>{erro}</Typography>}
-
           </Paper>
 
-          {/* O "Powered by" continua no final, fora dos blocos principais */}
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mt: 2, gap: 1 }}>
-              <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '1rem' }}>Powered by</Typography>
-              <img src="/gemini_logo.png" alt="Logo da Tecnologia" style={{ width: '80px', height: 'auto' }} />
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mt: 3, gap: 1 }}>
+              <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '0.8rem' }}>Powered by</Typography>
+              <img src="/gemini_logo.png" alt="Logo da Tecnologia" style={{ width: '60px', height: 'auto' }} />
           </Box>
         </Grid>
       </Grid>
