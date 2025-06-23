@@ -41,8 +41,8 @@ export default function FormularioGerador({ onSubmit, carregando }) {
 
   return (
     <Box component="form" onSubmit={handleSubmit} sx={{ mb: 4 }}>
-      <Typography variant="h5" component="h2">
-        Gerador de Atividades com IA
+      <Typography variant="h5" component="h2" gutterBottom sx={{ mb: 3, textAlign: 'center' }}>
+        Preencha os dados abaixo para gerar as questões
       </Typography>
       <Grid container spacing={3}> {/* Aumentei um pouco o spacing para 3 */}
         {/* --- ETAPA 1: Informações Básicas --- */}
@@ -78,7 +78,7 @@ export default function FormularioGerador({ onSubmit, carregando }) {
         )}
 
         {/* --- ETAPA 4: BOTÃO DE AÇÃO (FINAL DO FORMULÁRIO) --- */}
-        <Grid item xs={12} sx={{ mt: 2 }}>
+        <Grid item xs={12}>
           <Button type="submit" variant="contained" disabled={carregando || (!tiposSelecionados.multipla_escolha && !tiposSelecionados.dissertativa)} fullWidth sx={{ height: '56px', fontSize: '1rem' }}>
             {carregando ? <CircularProgress size={24} color="inherit" /> : 'Gerar Questões'}
           </Button>

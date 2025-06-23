@@ -1,65 +1,65 @@
 import React, { useState } from 'react';
-import { Container, CssBaseline, createTheme, ThemeProvider, responsiveFontSizes, Typography, Box } from '@mui/material';
+// Garantindo que todos os imports necessários estão aqui
+import { CssBaseline, createTheme, ThemeProvider, responsiveFontSizes, Typography, Box, Grid, Paper } from '@mui/material';
 import FormularioGerador from './components/FormularioGerador';
 import ListaQuestoes from './components/ListaQuestoes';
 import axios from 'axios';
 
-// --- NOVO: Personalização do Tema ---
+// --- TEMA PROFISSIONAL 100% CORRIGIDO ---
 let theme = createTheme({
   palette: {
-    primary: {
-      main: '#1976d2', // Um tom de azul padrão do Material-UI
-    },
-    secondary: {
-      main: '#dc004e', // Um tom de rosa/vermelho para secundário
-    },
-    background: {
-      default: '#f4f6f8', // Um cinza claro para o fundo
-      paper: '#fff', // Branco para os "papers" (cards/conteúdo)
-    },
+    primary: { main: '#0052cc' },
+    secondary: { main: '#D32F2F' },
+    background: { default: '#f7f9fc' },
+    success: { main: '#2e7d32' }
   },
   typography: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif', // Fonte padrão
-    h5: {
-      fontWeight: 500,
-      marginBottom: '1em',
-      color: '#333',
-    },
-    subtitle1: {
-      color: '#555',
-      marginBottom: '0.5em',
-    },
+    fontFamily: "'Poppins', sans-serif",
+    h4: { fontWeight: 600 },
+    h5: { fontWeight: 600 },
+    button: { fontWeight: 600, }
   },
   components: {
     MuiButton: {
       styleOverrides: {
         root: {
-          textTransform: 'none', // Deixa o texto dos botões como está (sem uppercase)
-          borderRadius: '8px', // Bordas mais arredondadas nos botões
-          padding: '10px 20px',
+          textTransform: 'none',
+          borderRadius: 8,
+          padding: '10px 24px',
+          boxShadow: 'none',
+          transition: 'background-color 0.3s ease, transform 0.1s ease',
+          ':hover': {
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+            transform: 'translateY(-2px)',
+          }
         },
-        containedPrimary: {
-          color: '#fff', // Texto branco nos botões primários
-        },
-      },
-    },
-    MuiTextField: {
-      defaultProps: {
-        variant: 'outlined', // Usar sempre a variante "outlined" nos TextFields
-        margin: 'normal', // Adicionar um pouco de margem padrão
       },
     },
     MuiPaper: {
-      styleOverrides: {
-        root: {
-          borderRadius: '8px', // Bordas mais arredondadas nos Papers
-          padding: '24px', // Aumentar o padding interno dos Papers
+        styleOverrides: {
+          root: {
+            borderRadius: 12,
+          },
         },
-      },
     },
+    MuiOutlinedInput: {
+      styleOverrides: {
+          root: {
+              borderRadius: 8,
+          },
+      }
+    },
+    MuiChip: {
+        styleOverrides: {
+            root: {
+                backgroundColor: 'rgba(0, 82, 204, 0.08)',
+                color: '#0052cc', 
+                fontWeight: 500,
+            }
+        }
+    }
   },
 });
-
 theme = responsiveFontSizes(theme);
 
 export default function App() {
@@ -70,26 +70,21 @@ export default function App() {
   const [dadosForm, setDadosForm] = useState(null);
 
   const handleGerarQuestoes = async (dadosDoFormulario) => {
+    // ... (a função handleGerarQuestoes continua a mesma)
     setCarregando(true);
     setErro('');
     setQuestoes([]);
     setNomeProfessor(dadosDoFormulario.nomeProfessor);
     setDadosForm(dadosDoFormulario);
-
     const urlApi = 'http://127.0.0.1:8000/gerar-questoes';
-
     try {
       const response = await axios.post(urlApi, dadosDoFormulario);
       setQuestoes(response.data.questoes);
     } catch (error) {
       console.error("Ocorreu um erro ao chamar a API:", error);
-      if (error.response) {
-        setErro(`Erro do servidor: ${error.response.data.detail || 'Não foi possível gerar as questões.'}`);
-      } else if (error.request) {
-        setErro("Não foi possível se conectar ao servidor. O back-end está rodando?");
-      } else {
-        setErro("Ocorreu um erro inesperado. Tente novamente.");
-      }
+      if (error.response) { setErro(`Erro do servidor: ${error.response.data.detail || 'Não foi possível gerar as questões.'}`);
+      } else if (error.request) { setErro("Não foi possível se conectar ao servidor. O back-end está rodando?");
+      } else { setErro("Ocorreu um erro inesperado. Tente novamente."); }
     } finally {
       setCarregando(false);
     }
@@ -98,28 +93,41 @@ export default function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Container maxWidth="md" sx={{ mt: { xs: 3, sm: 5 }, mb: 4 }}> {/* Aumentei um pouco a margem superior */}
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
-          <img src="/logo.png" alt="Logotipo do Projeto" style={{ width: '120px', height: 'auto', marginBottom: '1em' }} /> {/* Adicionei margem abaixo do logo */}
-          <Box sx={{ display: 'flex', alignItems: 'center', mt: 1, gap: 1 }}> {/* Reduzi um pouco a margem superior deste Box */}
-            <Typography variant="body2" color="text.secondary">Powered by</Typography>
-            <img src="/powered-by-logo.png" alt="Logo da Tecnologia" style={{ width: '80px', height: 'auto' }} />
+      <Grid container direction="column" alignItems="center" justifyContent="center" sx={{ minHeight: '100vh', p: 2, backgroundColor: 'background.default' }}>
+        <Grid item xs={11} sm={10} md={8} lg={7} xl={6}>
+          
+          {/* --- Bloco 1: Cabeçalho da Página (Fora do Paper) --- */}
+          <Box sx={{ textAlign: 'center', mb: 4 }}>
+            <img src="/logo.png" alt="Logotipo do Projeto" style={{ width: '190px', height: 'auto', marginBottom: '30px' }} />
+            <Typography variant="h4" component="h1" gutterBottom>Gerador de Provas</Typography>
+            <Typography variant="subtitle1" color="text.secondary">Crie avaliações personalizadas com o poder da IA</Typography>
           </Box>
-        </Box>
 
-        {/* O formulário já se beneficiará do tema */}
-        <FormularioGerador onSubmit={handleGerarQuestoes} carregando={carregando} />
+          {/* --- Bloco 2: Conteúdo Principal da Aplicação (Dentro do Paper) --- */}
+          <Paper elevation={4} sx={{ p: { xs: 3, sm: 5 }, width: '100%', borderRadius: 3 }}>
+            
+            {!dadosForm ? (
+                <FormularioGerador onSubmit={handleGerarQuestoes} carregando={carregando} />
+            ) : (
+                <ListaQuestoes
+                    questoes={questoes}
+                    nomeProfessor={nomeProfessor}
+                    dadosFormulario={dadosForm}
+                    onReset={() => setDadosForm(null)}
+                />
+            )}
+            
+            {erro && <Typography color="error" align="center" sx={{ mt: 2 }}>{erro}</Typography>}
 
-        {erro && <Typography color="error" align="center" sx={{ mt: 2 }}>{erro}</Typography>}
+          </Paper>
 
-        {questoes.length > 0 && dadosForm && (
-          <ListaQuestoes
-            questoes={questoes}
-            nomeProfessor={nomeProfessor}
-            dadosFormulario={dadosForm}
-          />
-        )}
-      </Container>
+          {/* O "Powered by" continua no final, fora dos blocos principais */}
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mt: 2, gap: 1 }}>
+              <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '1rem' }}>Powered by</Typography>
+              <img src="/gemini_logo.png" alt="Logo da Tecnologia" style={{ width: '80px', height: 'auto' }} />
+          </Box>
+        </Grid>
+      </Grid>
     </ThemeProvider>
   );
 }
