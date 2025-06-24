@@ -42,7 +42,10 @@ def criar_prompt(tema: str, serie: str, qtd_multipla: int, qtd_dissertativa: int
         instrucao_especifica = f"""
         Gere EXATAMENTE {qtd_multipla} questões.
         É CRUCIAL que TODAS as questões sejam do tipo 'multipla_escolha'. NÃO inclua NENHUMA questão dissertativa.
-        Cada objeto na lista deve ter as chaves: "pergunta" (string), "tipo" (com o valor fixo "multipla_escolha"), "alternativas" (uma lista de 4 strings, ex: ["A) ...", "B) ..."]), e "resposta_correta" (a letra da alternativa correta, ex: "C").
+        Cada objeto na lista deve ter as chaves: "pergunta" (string), "tipo" (com o valor fixo "multipla_escolha"), "alternativas" (uma lista de 4 strings), e "resposta_correta" (a letra da alternativa correta, ex: "C").
+        
+        ATUALIZADO: Instrução mais forte para o formato das alternativas
+        Para a chave "alternativas", é OBRIGATÓRIO que cada string na lista comece com o prefixo da letra maiúscula correspondente, seguido de um parêntese e um espaço, como em "A) [texto da alternativa]", "B) [texto da alternativa]", etc.
         """
     # Cenário 2: Apenas Dissertativa
     elif qtd_dissertativa > 0 and qtd_multipla == 0:
@@ -56,32 +59,27 @@ def criar_prompt(tema: str, serie: str, qtd_multipla: int, qtd_dissertativa: int
         instrucao_especifica = f"""
         Gere uma prova mista contendo EXATAMENTE {qtd_multipla} questões de múltipla escolha E {qtd_dissertativa} questões dissertativas.
         Para questões de múltipla escolha, o objeto deve ter as chaves: "pergunta", "tipo" (com valor "multipla_escolha"), "alternativas" (lista de 4 strings), e "resposta_correta" (a letra da alternativa correta).
+        Para a chave "alternativas", é OBRIGATÓRIO que cada string na lista comece com o prefixo da letra maiúscula correspondente, seguido de um parêntese e um espaço, como em "A) [texto da alternativa]".
         Para questões dissertativas, o objeto deve ter as chaves: "pergunta", "tipo" (com valor "dissertativa"), e "resposta_esperada" (o gabarito detalhado).
         """
     
     return prompt_base + instrucao_especifica + "\nGere o conteúdo JSON agora."
 
 #endpoints
-#ver se o servidor esta rodando
+#ver se ta funcionando o servidor
 @app.get("/")
 def read_root():
     return {"message": "Servidor do Gerador de Provas está funcionando."}
 
+#gerar as questoes
 @app.post("/gerar-questoes")
 async def gerar_questoes_endpoint(request: QuestaoRequest):
     if request.quantidadeMultipla == 0 and request.quantidadeDissertativa == 0:
         raise HTTPException(status_code=400, detail="Pelo menos um tipo de questão deve ter quantidade maior que zero.")
     try:
-        prompt = criar_prompt(
-            request.tema, 
-            request.serie, 
-            request.quantidadeMultipla, 
-            request.quantidadeDissertativa
-        )
-        
+        prompt = criar_prompt(request.tema, request.serie, request.quantidadeMultipla, request.quantidadeDissertativa)
         model = genai.GenerativeModel(model_name="gemini-1.5-flash")
         response = model.generate_content(prompt)
-        
         try:
             cleaned_response_text = response.text.strip().replace("```json", "").replace("```", "")
             data = json.loads(cleaned_response_text)
