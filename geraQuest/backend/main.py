@@ -1,11 +1,15 @@
 import os
 import json
+#fatsapi para o servidor
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+#pydantic para validacao de dados
 from pydantic import BaseModel, Field
 import google.generativeai as genai
+#carregar variaveis de ambiente env
 from dotenv import load_dotenv
 
+#tenta usar a api key do gemini
 load_dotenv()
 try:
     genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
@@ -13,6 +17,7 @@ except AttributeError:
     print("Erro: A chave de API do Gemini não foi encontrada.")
     exit()
 
+#molde de dados para a requisicaoo
 class QuestaoRequest(BaseModel):
     nomeProfessor: str
     tema: str
@@ -22,10 +27,9 @@ class QuestaoRequest(BaseModel):
 
 app = FastAPI()
 origins = ["http://localhost:5173", "http://localhost:5174"]
+#como a api tem um endereco diferente do front usamos o cors para permitir acesso
 app.add_middleware(CORSMiddleware, allow_origins=origins, allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 
-
-# --- ATUALIZADO: Função para criar o prompt muito mais específica ---
 def criar_prompt(tema: str, serie: str, qtd_multipla: int, qtd_dissertativa: int) -> str:
     prompt_base = f"""
     Você é um assistente especialista em criar avaliações educacionais para professores.
@@ -57,7 +61,8 @@ def criar_prompt(tema: str, serie: str, qtd_multipla: int, qtd_dissertativa: int
     
     return prompt_base + instrucao_especifica + "\nGere o conteúdo JSON agora."
 
-# --- O resto do arquivo continua o mesmo ---
+#endpoints
+#ver se o servidor esta rodando
 @app.get("/")
 def read_root():
     return {"message": "Servidor do Gerador de Provas está funcionando."}

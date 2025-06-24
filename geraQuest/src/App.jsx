@@ -1,10 +1,13 @@
+//imports 
 import React, { useState } from 'react';
 import { CssBaseline, createTheme, ThemeProvider, responsiveFontSizes, Typography, Box, Grid, Paper } from '@mui/material';
+//nossos proprios componentes
 import FormularioGerador from './components/FormularioGerador';
 import ListaQuestoes from './components/ListaQuestoes';
+//para fazer requisicoes http
 import axios from 'axios';
 
-// Tema
+//tema
 let theme = createTheme({
   palette: {
     primary: { main: '#0052cc' },
@@ -38,12 +41,14 @@ let theme = createTheme({
 theme = responsiveFontSizes(theme);
 
 export default function App() {
-  const [questoes, setQuestoes] = useState([]);
+  //memorias de curtoprazo, ou estados para guardar informacoes enquanto o usuario usa a pagina
+  const [questoes, setQuestoes] = useState([]); //comeca vazio, mas depois fica com as questoes
   const [nomeProfessor, setNomeProfessor] = useState('');
-  const [carregando, setCarregando] = useState(false);
+  const [carregando, setCarregando] = useState(false); //mostrar o spinner de carregamento
   const [erro, setErro] = useState('');
-  const [dadosForm, setDadosForm] = useState(null);
+  const [dadosForm, setDadosForm] = useState(null); //comeca com null, ai quando tem dados aqui passa pra prox tela de resultados
 
+  //ativa o carregabndo, usa o axios e preenche os dados das questoes ou com erro
   const handleGerarQuestoes = async (dadosDoFormulario) => {
     setCarregando(true);
     setErro('');
@@ -63,6 +68,7 @@ export default function App() {
     }
   };
 
+  //editar as questoes
   const handleUpdateQuestao = (index, questaoAtualizada) => {
     const novasQuestoes = [...questoes]; 
     novasQuestoes[index] = questaoAtualizada;
@@ -74,6 +80,7 @@ export default function App() {
     setQuestoes(novasQuestoes);
   };
 
+  //desenha a pagina na tela
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />

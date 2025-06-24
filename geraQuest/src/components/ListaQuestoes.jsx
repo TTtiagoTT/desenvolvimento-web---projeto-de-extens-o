@@ -3,13 +3,15 @@ import { Box, Button, Typography, CircularProgress, Stack, Divider, Chip, Alert 
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+//bibliotecas de pdf
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+//componentes q criamos
 import ConteudoProva from './ConteudoProva';
 import QuestaoEditavel from './QuestaoEditavel';
 
 export default function ListaQuestoes({ questoes, nomeProfessor, dadosFormulario, onReset, onUpdateQuestao, onDeleteQuestao }) {
-  // Este estado controla se estamos no meio de uma exportação
+  //estado que controla se estamos em exportacaoo
   const [preparandoPdf, setPreparandoPdf] = useState(null); // null, 'aluno', ou 'professor'
 
   // Este "hook" useEffect "escuta" as mudanças no estado 'preparandoPdf'
@@ -61,6 +63,7 @@ export default function ListaQuestoes({ questoes, nomeProfessor, dadosFormulario
   }, [preparandoPdf, dadosFormulario, questoes, nomeProfessor]); // O hook só roda quando um desses valores muda
 
   return (
+    //estrutura visual
     <>
       <Box sx={{ textAlign: 'center' }}>
         <Typography variant="h5" component="h2" gutterBottom>Revisão da Prova</Typography>
