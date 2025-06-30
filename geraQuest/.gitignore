@@ -25,3 +25,22 @@ dist-ssr
 
 #ignorar arquivos com segredos, vulgo chave da api do google
 .env
+
+# Cache
+__pycache__/
+*.pyc
+
+# Ambiente Virtual
+venv/
+.venv/
+env/
+.env
+
+# Bancos de dados
+*.db
+*.sqlite3
+
+# Outras pastas de build/dependências (opcional, mas recomendado)
+/node_modules
+/build
+/dist
