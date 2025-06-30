@@ -44,6 +44,7 @@ app.add_middleware(CORSMiddleware, allow_origins=origins, allow_credentials=True
 # Em main.py
 
 # --- FUNÇÃO PARA CRIAR O PROMPT ---
+
 def criar_prompt(tema: str, serie: str, qtd_multipla: int, qtd_dissertativa: int) -> str:
     """
     Cria um prompt detalhado para a IA, especificando o formato exato da resposta JSON.

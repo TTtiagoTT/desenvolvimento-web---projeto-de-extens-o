@@ -44,3 +44,6 @@ env/
 /node_modules
 /build
 /dist
+
+# Ignorar provas salvas geradas
+backend/provas_salvas/

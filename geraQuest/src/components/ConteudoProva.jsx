@@ -27,12 +27,10 @@ export default function ConteudoProva({ questoes, nomeProfessor, dadosFormulario
   // Verificação para garantir que dadosFormulario não é nulo
   const tema = dadosFormulario ? dadosFormulario.tema : 'Tema não definido';
   
-  // ATUALIZADO: O ID é definido aqui e usado no Box abaixo
   const id = isGabarito ? "prova-professor-pdf" : "prova-aluno-pdf";
   const titulo = isGabarito ? "Avaliação de Conhecimentos (Gabarito)" : "Avaliação de Conhecimentos";
 
   return (
-    // ATUALIZADO: Adicionando o 'id' dinâmico de volta ao Box principal.
     <Box 
       id={id} 
       sx={{ 

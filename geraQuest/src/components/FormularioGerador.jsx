@@ -1,9 +1,10 @@
+//formulario do professor para mandar os dados para o App.jsx
 import React, { useState } from 'react';
-// Removidos Divider e Chip, pois não são mais necessários
 import { TextField, Button, Box, Typography, CircularProgress, Grid, FormGroup, FormControlLabel, Checkbox } from '@mui/material';
-import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
+import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh'; //icone de varinha
 
 export default function FormularioGerador({ onSubmit, carregando }) {
+  //memoria ou estados
   const [nomeProfessor, setNomeProfessor] = useState('');
   const [tema, setTema] = useState('');
   const [serie, setSerie] = useState('');
@@ -11,6 +12,7 @@ export default function FormularioGerador({ onSubmit, carregando }) {
   const [qtdMultipla, setQtdMultipla] = useState(5);
   const [qtdDissertativa, setQtdDissertativa] = useState(3);
 
+  //cuida dos checkbox
   const handleTipoChange = (event) => {
     setTiposSelecionados({ ...tiposSelecionados, [event.target.name]: event.target.checked });
   };
@@ -26,15 +28,14 @@ export default function FormularioGerador({ onSubmit, carregando }) {
       quantidadeMultipla: tiposSelecionados.multipla_escolha ? Number(qtdMultipla) : 0,
       quantidadeDissertativa: tiposSelecionados.dissertativa ? Number(qtdDissertativa) : 0,
     };
+    //envia os dados para o App.jsx
     onSubmit(dadosParaApi);
   };
 
-// Em FormularioGerador.jsx
-// ... (toda a lógica antes do return continua a mesma) ...
   return (
+    //desenha o formulario na tela
     <Box component="form" onSubmit={handleSubmit}>
       <Typography variant="h6" component="h3" gutterBottom>Informações da Prova</Typography>
-      {/* ATUALIZADO: Removido o 'item' de todos os Grids filhos */}
       <Grid container spacing={2}>
         <Grid xs={12} md={6}><TextField margin="dense" label="Nome do Professor(a)" value={nomeProfessor} onChange={(e) => setNomeProfessor(e.target.value)} required fullWidth /></Grid>
         <Grid xs={12} md={6}><TextField margin="dense" label="Tema da Aula" value={tema} onChange={(e) => setTema(e.target.value)} required fullWidth /></Grid>

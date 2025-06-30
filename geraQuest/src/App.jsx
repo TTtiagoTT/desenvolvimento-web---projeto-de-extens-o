@@ -9,6 +9,7 @@ import axios from 'axios';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
+
 // Icons
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
@@ -276,8 +277,9 @@ const GeradorProvas = ({ usuario, token, onLogout }) => {
   const [questoes, setQuestoes] = useState([]);
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState('');
-  const [dadosForm, setDadosForm] = useState(null);
+  const [dadosForm, setDadosForm] = useState(null); //comeca com null, ai quando tem dados aqui passa pra prox tela de resultados
 
+  //ativa o carregabndo, usa o axios e preenche os dados das questoes ou com erro
   const handleGerarQuestoes = async (dadosDoFormulario) => {
     setCarregando(true); setErro(''); setQuestoes([]);
     const urlApi = 'http://127.0.0.1:8000/gerar-prova';
@@ -317,6 +319,7 @@ const GeradorProvas = ({ usuario, token, onLogout }) => {
     }
   };
 
+  //editar as questoes
   const handleUpdateQuestao = (index, questaoAtualizada) => {
     const novasQuestoes = [...questoes];
     novasQuestoes[index] = questaoAtualizada;
@@ -328,6 +331,7 @@ const GeradorProvas = ({ usuario, token, onLogout }) => {
     setQuestoes(novasQuestoes);
   };
 
+  //desenha a pagina na tela
   return (
     <>
       <Box sx={{ textAlign: 'right', mb: 2, alignSelf: 'flex-end' }}>
