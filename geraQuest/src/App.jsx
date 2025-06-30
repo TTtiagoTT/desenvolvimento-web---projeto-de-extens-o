@@ -2,13 +2,11 @@ import React, { useState, useEffect } from 'react';
 import {
   CssBaseline, createTheme, ThemeProvider, responsiveFontSizes, Typography,
   Box, Grid, Paper, TextField, Button, CircularProgress, Tabs, Tab, IconButton,
-  Stack, Divider, Chip, Alert, FormGroup, FormControlLabel, Checkbox,
-  ListItemSecondaryAction
+  Stack, Divider, Chip, Alert, List, ListItem, ListItemText, ListItemAvatar, Avatar, FormGroup, FormControlLabel, Checkbox, ListItemSecondaryAction
 } from '@mui/material';
 import axios from 'axios';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
-
 
 // Icons
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
@@ -21,8 +19,10 @@ import CloseIcon from '@mui/icons-material/Close';
 import DownloadIcon from '@mui/icons-material/Download';
 import ArticleIcon from '@mui/icons-material/Article';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import HistoryIcon from '@mui/icons-material/History';
 
-// Tema visual mantido
+
+// --- TEMA (sem alterações) ---
 let theme = createTheme({
   palette: {
     primary: { main: '#0052cc' },
@@ -34,21 +34,18 @@ let theme = createTheme({
     h4: { fontWeight: 600 }, h5: { fontWeight: 600 }, button: { fontWeight: 600 }
   },
   components: {
-    MuiButton: {
-      styleOverrides: { root: { textTransform: 'none', borderRadius: 8, padding: '10px 24px' } },
-    },
+    MuiButton: { styleOverrides: { root: { textTransform: 'none', borderRadius: 8, padding: '10px 24px' } } },
     MuiPaper: { styleOverrides: { root: { borderRadius: 12 } } },
     MuiOutlinedInput: { styleOverrides: { root: { borderRadius: 8 } } },
-    MuiChip: {
-      styleOverrides: {
-        root: { backgroundColor: 'rgba(0, 82, 204, 0.08)', color: '#0052cc', fontWeight: 500 }
-      }
-    }
+    MuiChip: { styleOverrides: { root: { backgroundColor: 'rgba(0, 82, 204, 0.08)', color: '#0052cc', fontWeight: 500 } } }
   },
 });
 theme = responsiveFontSizes(theme);
 
-// --- COMPONENTES REAIS (Integrados a partir dos seus arquivos) ---
+
+// ===================================================================
+// ===== DEFINIÇÃO DOS SUB-COMPONENTES (VERSÃO LIMPA E ÚNICA) =====
+// ===================================================================
 
 const RenderizadorMarkdown = ({ text, sx }) => {
   if (!text) return null;
@@ -121,10 +118,7 @@ const QuestaoEditavel = ({ questao, index, onUpdate, onDelete }) => {
         ) : (
           <TextField label="Resposta Esperada (Gabarito)" name="resposta_esperada" value={editedQuestao.resposta_esperada || ''} onChange={handleChange} multiline fullWidth variant="filled" margin="normal" />
         )}
-        <Stack direction="row" spacing={1} justifyContent="flex-end" sx={{ mt: 1 }}>
-          <Button startIcon={<CloseIcon />} onClick={handleCancel} color="inherit">Cancelar</Button>
-          <Button variant="contained" startIcon={<CheckIcon />} onClick={handleSave}>Salvar</Button>
-        </Stack>
+        <Stack direction="row" spacing={1} justifyContent="flex-end" sx={{ mt: 1 }}><Button startIcon={<CloseIcon />} onClick={handleCancel} color="inherit">Cancelar</Button><Button variant="contained" startIcon={<CheckIcon />} onClick={handleSave}>Salvar</Button></Stack>
       </Box>
     );
   }
@@ -132,10 +126,7 @@ const QuestaoEditavel = ({ questao, index, onUpdate, onDelete }) => {
     <Box>
       <Stack direction="row" justifyContent="space-between" alignItems="flex-start" spacing={1}>
         <RenderizadorMarkdown text={`**Questão ${index + 1}:** ${questao.pergunta}`} sx={{ flexGrow: 1, pr: 1, textAlign: 'left' }} />
-        <Box>
-          <IconButton aria-label="Editar" size="small" onClick={() => setIsEditing(true)}><EditIcon fontSize="small" /></IconButton>
-          <IconButton aria-label="Excluir" size="small" onClick={() => onDelete()}><DeleteIcon color="error" fontSize="small" /></IconButton>
-        </Box>
+        <Box><IconButton aria-label="Editar" size="small" onClick={() => setIsEditing(true)}><EditIcon fontSize="small" /></IconButton><IconButton aria-label="Excluir" size="small" onClick={() => onDelete()}><DeleteIcon color="error" fontSize="small" /></IconButton></Box>
       </Stack>
       {questao.tipo === 'multipla_escolha' && (<Box sx={{ mt: 1, pl: 2, textAlign: 'left' }}>{(questao.alternativas || []).map((alt, i) => <Typography key={i} variant="body2">{alt}</Typography>)}</Box>)}
     </Box>
@@ -144,7 +135,6 @@ const QuestaoEditavel = ({ questao, index, onUpdate, onDelete }) => {
 
 const ListaQuestoes = ({ questoes, nomeProfessor, dadosFormulario, onReset, onUpdateQuestao, onDeleteQuestao }) => {
   const [preparandoPdf, setPreparandoPdf] = useState(null);
-
   useEffect(() => {
     if (!preparandoPdf) return;
     const isGabarito = preparandoPdf === 'professor';
@@ -173,7 +163,6 @@ const ListaQuestoes = ({ questoes, nomeProfessor, dadosFormulario, onReset, onUp
     }, 100);
     return () => clearTimeout(timer);
   }, [preparandoPdf, dadosFormulario, questoes, nomeProfessor]);
-
   return (
     <>
       <Box sx={{ textAlign: 'center' }}><Typography variant="h5" component="h2" gutterBottom>Revisão da Prova</Typography><Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>Visualize, edite ou exclua as questões geradas.</Typography></Box>
@@ -220,13 +209,11 @@ const FormularioGerador = ({ onSubmit, carregando, nomeProfessor }) => {
         {tiposSelecionados.multipla_escolha && (<Grid item xs={12} sm={6}><TextField margin="dense" label="Qtd. Múltipla Escolha" type="number" value={qtdMultipla} onChange={(e) => setQtdMultipla(e.target.value)} InputProps={{ inputProps: { min: 1, max: 20 } }} required fullWidth /></Grid>)}
         {tiposSelecionados.dissertativa && (<Grid item xs={12} sm={6}><TextField margin="dense" label="Qtd. Dissertativas" type="number" value={qtdDissertativa} onChange={(e) => setQtdDissertativa(e.target.value)} InputProps={{ inputProps: { min: 1, max: 20 } }} required fullWidth /></Grid>)}
       </Grid>
-      <Box sx={{ mt: 4 }}><Button type="submit" variant="contained" disabled={carregando || (!tiposSelecionados.multipla_escolha && !tiposSelecionados.dissertativa)} fullWidth startIcon={<AutoFixHighIcon />} sx={{ height: '56px', fontSize: '1rem' }}>{carregando ? <CircularProgress size={24} color="inherit" /> : 'Gerar Prova com IA'}</Button></Box>
+      <Box sx={{ mt: 4 }}><Button type="submit" variant="contained" disabled={carregando} fullWidth startIcon={<AutoFixHighIcon />} sx={{ height: '56px', fontSize: '1rem' }}>{carregando ? <CircularProgress size={24} color="inherit" /> : 'Gerar Prova com IA'}</Button></Box>
     </Box>
   );
 };
 
-
-// --- Componente da Tela de Autenticação ---
 const TelaAutenticacao = ({ onLoginSuccess }) => {
   const [aba, setAba] = useState(0);
   const [email, setEmail] = useState('');
@@ -234,8 +221,8 @@ const TelaAutenticacao = ({ onLoginSuccess }) => {
   const [nome, setNome] = useState('');
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState('');
+
   const handleLogin = async () => {
-    setCarregando(true); setErro('');
     const params = new URLSearchParams();
     params.append('username', email);
     params.append('password', password);
@@ -243,118 +230,43 @@ const TelaAutenticacao = ({ onLoginSuccess }) => {
       const response = await axios.post('http://127.0.0.1:8000/token', params);
       onLoginSuccess(response.data.access_token);
     } catch (error) {
-      setErro('E-mail ou senha incorretos. Tente novamente.');
-    } finally { setCarregando(false); }
+      setErro('E-mail ou senha incorretos.');
+    }
   };
+
   const handleCadastro = async () => {
-    setCarregando(true); setErro('');
     try {
       await axios.post('http://127.0.0.1:8000/professores/', { nome, email, password });
       await handleLogin();
     } catch (error) {
       setErro(error.response?.data?.detail || 'Erro ao cadastrar.');
-    } finally { setCarregando(false); }
+    }
   };
-  const handleSubmit = (e) => { e.preventDefault(); if (aba === 0) handleLogin(); else handleCadastro(); };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setCarregando(true);
+    setErro('');
+    if (aba === 0) {
+      await handleLogin();
+    } else {
+      await handleCadastro();
+    }
+    setCarregando(false);
+  };
+
   return (
     <>
       <Tabs value={aba} onChange={(e, novaAba) => setAba(novaAba)} centered sx={{ mb: 3 }}><Tab label="Entrar" /><Tab label="Cadastrar" /></Tabs>
-      <form onSubmit={handleSubmit}>
+      <Box component="form" onSubmit={handleSubmit}>
         <Grid container spacing={2}>
           {aba === 1 && (<Grid item xs={12}><TextField label="Nome Completo" fullWidth required value={nome} onChange={(e) => setNome(e.target.value)} /></Grid>)}
           <Grid item xs={12}><TextField label="E-mail" type="email" fullWidth required value={email} onChange={(e) => setEmail(e.target.value)} /></Grid>
           <Grid item xs={12}><TextField label="Senha" type="password" fullWidth required value={password} onChange={(e) => setPassword(e.target.value)} /></Grid>
           <Grid item xs={12}><Button type="submit" variant="contained" fullWidth disabled={carregando} sx={{ height: '56px' }}>{carregando ? <CircularProgress size={24} /> : (aba === 0 ? 'Entrar' : 'Cadastrar e Entrar')}</Button></Grid>
-          {erro && (<Grid item xs={12} sx={{ mt: 2 }}><Typography color="error" align="center">{erro}</Typography></Grid>)}
+          {erro && (<Grid item xs={12}><Typography color="error" align="center" sx={{ mt: 2 }}>{erro}</Typography></Grid>)}
         </Grid>
-      </form>
-    </>
-  );
-};
-
-// --- Componente que gerencia a tela principal após o login ---
-const GeradorProvas = ({ usuario, token, onLogout }) => {
-  const [questoes, setQuestoes] = useState([]);
-  const [carregando, setCarregando] = useState(false);
-  const [erro, setErro] = useState('');
-  const [dadosForm, setDadosForm] = useState(null); //comeca com null, ai quando tem dados aqui passa pra prox tela de resultados
-
-  //ativa o carregabndo, usa o axios e preenche os dados das questoes ou com erro
-  const handleGerarQuestoes = async (dadosDoFormulario) => {
-    setCarregando(true); setErro(''); setQuestoes([]);
-    const urlApi = 'http://127.0.0.1:8000/gerar-prova';
-    const payload = {
-      tema: dadosDoFormulario.tema,
-      serie: dadosDoFormulario.serie,
-      quantidadeMultipla: parseInt(dadosDoFormulario.quantidadeMultipla, 10) || 0,
-      quantidadeDissertativa: parseInt(dadosDoFormulario.quantidadeDissertativa, 10) || 0,
-    };
-
-    try {
-      const response = await axios.post(urlApi, payload, { headers: { 'Authorization': `Bearer ${token}` } });
-
-      // --- DEBUG: LOG A RESPOSTA PARA VER A ESTRUTURA REAL ---
-      console.log("Resposta recebida da API:", JSON.stringify(response.data, null, 2));
-
-      // A linha principal para extrair os dados.
-      // Com o novo prompt, isso agora deve funcionar de forma consistente.
-      const questoesRecebidas = response.data.questoes_geradas;
-
-      if (Array.isArray(questoesRecebidas) && questoesRecebidas.length > 0) {
-        // Verifica se os objetos dentro do array não estão vazios ou malformados
-        if (questoesRecebidas[0] && questoesRecebidas[0].pergunta) {
-          setQuestoes(questoesRecebidas);
-          setDadosForm(dadosDoFormulario);
-        } else {
-          setErro("A IA retornou dados, mas em um formato de questão inválido. Verifique o prompt no back-end.");
-        }
-      } else {
-        setErro("A IA não retornou questões no formato esperado ou o array está vazio.");
-      }
-    } catch (error) {
-      console.error("Erro detalhado ao chamar a API:", error.response || error.message);
-      setErro(error.response?.data?.detail || "Ocorreu um erro grave ao se comunicar com o servidor.");
-    } finally {
-      setCarregando(false);
-    }
-  };
-
-  //editar as questoes
-  const handleUpdateQuestao = (index, questaoAtualizada) => {
-    const novasQuestoes = [...questoes];
-    novasQuestoes[index] = questaoAtualizada;
-    setQuestoes(novasQuestoes);
-  };
-
-  const handleDeleteQuestao = (index) => {
-    const novasQuestoes = questoes.filter((_, i) => i !== index);
-    setQuestoes(novasQuestoes);
-  };
-
-  //desenha a pagina na tela
-  return (
-    <>
-      <Box sx={{ textAlign: 'right', mb: 2, alignSelf: 'flex-end' }}>
-        <Typography variant="body2" sx={{ display: 'inline-block', mr: 2 }}>Olá, {usuario.nome.split(' ')[0]}</Typography>
-        <Button onClick={onLogout} size="small" variant="outlined">Sair</Button>
       </Box>
-      {!dadosForm ? (
-        <FormularioGerador
-          onSubmit={handleGerarQuestoes}
-          carregando={carregando}
-          nomeProfessor={usuario.nome}
-        />
-      ) : (
-        <ListaQuestoes
-          questoes={questoes}
-          nomeProfessor={usuario.nome}
-          dadosFormulario={dadosForm}
-          onReset={() => { setDadosForm(null); setQuestoes([]); }}
-          onUpdateQuestao={handleUpdateQuestao}
-          onDeleteQuestao={handleDeleteQuestao}
-        />
-      )}
-      {erro && <Typography color="error" align="center" sx={{ mt: 2 }}>{erro}</Typography>}
     </>
   );
 };
@@ -373,15 +285,14 @@ const TelaHistorico = ({ token, onVoltar }) => {
         const response = await axios.get('http://127.0.0.1:8000/professores/me/provas', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
-        const provasOrdenadas = response.data.sort((a, b) => new Date(b.data_criacao) - new Date(a.data_criacao));
-        setProvas(provasOrdenadas);
+        setProvas(response.data);
       } catch (error) {
         setErro('Não foi possível carregar o histórico de provas.');
+        console.error("Erro ao buscar histórico:", error);
       } finally {
         setCarregando(false);
       }
     };
-
     fetchHistorico();
   }, [token]);
 
@@ -392,203 +303,158 @@ const TelaHistorico = ({ token, onVoltar }) => {
         headers: { 'Authorization': `Bearer ${token}` },
         responseType: 'blob',
       });
-
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      const nomeArquivo = `${prova.titulo.replace(/\s+/g, '_')}.pdf`;
-      link.setAttribute('download', nomeArquivo);
+      link.setAttribute('download', `${prova.titulo.replace(/\s+/g, '_')}.pdf`);
       document.body.appendChild(link);
       link.click();
       link.parentNode.removeChild(link);
-      window.URL.revokeObjectURL(url);
-
     } catch (error) {
-      alert('Não foi possível baixar a prova. Tente novamente.');
+      alert('Erro ao baixar o PDF.');
     } finally {
       setBaixandoId(null);
     }
   };
 
-  if (carregando) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (erro) {
-    return <Alert severity="error" sx={{ mt: 2 }}>{erro}</Alert>;
-  }
+  if (carregando) return <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}><CircularProgress /></Box>;
+  if (erro) return <Alert severity="error">{erro}</Alert>;
 
   return (
     <Box>
-      <Button startIcon={<ArrowBackIcon />} onClick={onVoltar} sx={{ mb: 2 }}>
-        Voltar para o Gerador
-      </Button>
-      <Typography variant="h5" component="h2" gutterBottom align="center">
-        Meu Histórico de Provas
-      </Typography>
+      <Button startIcon={<ArrowBackIcon />} onClick={onVoltar} sx={{ mb: 2 }}>Voltar ao Gerador</Button>
+      <Typography variant="h5" component="h2" gutterBottom align="center">Meu Histórico de Provas</Typography>
       <Divider sx={{ mb: 2 }} />
       {provas.length > 0 ? (
         <List>
           {provas.map((prova) => (
             <ListItem key={prova.id} divider>
-              <ListItemAvatar>
-                <Avatar>
-                  <ArticleIcon />
-                </Avatar>
-              </ListItemAvatar>
+              <ListItemAvatar><Avatar><ArticleIcon /></Avatar></ListItemAvatar>
               <ListItemText
                 primary={prova.titulo}
-                secondary={`Criada em: ${new Date(prova.data_criacao).toLocaleDateString('pt-BR', {
-                  day: '2-digit', month: 'long', year: 'numeric'
-                })}`}
+                secondary={`Criada em: ${new Date(prova.data_criacao).toLocaleDateString('pt-BR')}`}
               />
               <ListItemSecondaryAction>
-                {baixandoId === prova.id ? (
-                  <CircularProgress size={24} />
-                ) : (
-                  <IconButton edge="end" aria-label="download" onClick={() => handleDownload(prova)}>
-                    <DownloadIcon />
-                  </IconButton>
-                )}
+                <IconButton edge="end" onClick={() => handleDownload(prova)} disabled={baixandoId === prova.id}>
+                  {baixandoId === prova.id ? <CircularProgress size={24} /> : <DownloadIcon />}
+                </IconButton>
               </ListItemSecondaryAction>
             </ListItem>
           ))}
         </List>
       ) : (
-        <Alert severity="info" sx={{ mt: 2 }}>
-          Você ainda não gerou nenhuma prova.
-        </Alert>
+        <Alert severity="info">Você ainda não gerou nenhuma prova.</Alert>
       )}
     </Box>
   );
 };
 
-// --- COMPONENTE MODIFICADO E CORRIGIDO: TelaPrincipal ---
 const TelaPrincipal = ({ usuario, token, onLogout }) => {
   const [view, setView] = useState('generator'); // 'generator' ou 'history'
   const [questoes, setQuestoes] = useState([]);
+  const [dadosFormulario, setDadosFormulario] = useState(null);
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState('');
-  const [dadosForm, setDadosForm] = useState(null);
 
-  // --- LÓGICA DA API E DAS QUESTÕES RESTAURADA AQUI ---
-  const handleGerarQuestoes = async (dadosDoFormulario) => {
+  const handleGerarQuestoes = async (dadosDoForm) => {
     setCarregando(true);
     setErro('');
     setQuestoes([]);
-    const urlApi = 'http://127.0.0.1:8000/gerar-prova';
-    const payload = {
-      tema: dadosDoFormulario.tema,
-      serie: dadosDoFormulario.serie,
-      quantidadeMultipla: parseInt(dadosDoFormulario.quantidadeMultipla, 10) || 0,
-      quantidadeDissertativa: parseInt(dadosDoFormulario.quantidadeDissertativa, 10) || 0,
-    };
-
     try {
-      const response = await axios.post(urlApi, payload, { headers: { 'Authorization': `Bearer ${token}` } });
-      const questoesRecebidas = response.data.questoes_geradas;
-
-      if (Array.isArray(questoesRecebidas) && questoesRecebidas.length > 0) {
-        if (questoesRecebidas[0] && questoesRecebidas[0].pergunta) {
-          setQuestoes(questoesRecebidas);
-          setDadosForm(dadosDoFormulario);
-        } else {
-          setErro("A IA retornou dados, mas em um formato de questão inválido. Verifique o prompt no back-end.");
-        }
-      } else {
-        setErro("A IA não retornou questões no formato esperado ou o array está vazio.");
-      }
+      const response = await axios.post('http://127.0.0.1:8000/gerar-prova', dadosDoForm, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      setQuestoes(response.data.questoes_geradas);
+      setDadosFormulario(dadosDoForm);
     } catch (error) {
-      console.error("Erro detalhado ao chamar a API:", error.response || error.message);
-      setErro(error.response?.data?.detail || "Ocorreu um erro grave ao se comunicar com o servidor.");
+      setErro(error.response?.data?.detail || "Ocorreu um erro ao gerar a prova.");
     } finally {
-      // Esta é a linha crucial que estava faltando, que para o carregamento
       setCarregando(false);
     }
   };
 
-  const handleUpdateQuestao = (index, questaoAtualizada) => {
-    const novasQuestoes = [...questoes];
-    novasQuestoes[index] = questaoAtualizada;
-    setQuestoes(novasQuestoes);
-  };
-
-  const handleDeleteQuestao = (index) => {
-    const novasQuestoes = questoes.filter((_, i) => i !== index);
-    setQuestoes(novasQuestoes);
-  };
-
   const handleReset = () => {
-    setDadosForm(null);
     setQuestoes([]);
+    setDadosFormulario(null);
   };
-  // Se a view for 'history', renderiza a tela de histórico
+
   if (view === 'history') {
     return <TelaHistorico token={token} onVoltar={() => setView('generator')} />;
   }
 
-  // Senão, renderiza a tela principal do gerador
   return (
     <>
-      {/* Cabeçalho com o novo botão "Histórico" */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: 1 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Typography variant="body2">Olá, {usuario.nome.split(' ')[0]}</Typography>
         <Box>
-          <Button onClick={() => setView('history')} variant="text" sx={{ mr: 1 }}>
-            Histórico
-          </Button>
-          <Button onClick={onLogout} size="small" variant="outlined">Sair</Button>
+          <Button onClick={() => setView('history')} variant="text" startIcon={<HistoryIcon />}>Histórico</Button>
+          <Button onClick={onLogout} size="small" variant="outlined" sx={{ ml: 1 }}>Sair</Button>
         </Box>
       </Box>
-
-      {/* Conteúdo do Gerador */}
-      {!dadosForm ? (
-        <FormularioGerador
-          onSubmit={handleGerarQuestoes}
-          carregando={carregando}
-          nomeProfessor={usuario.nome}
-        />
+      {!dadosFormulario ? (
+        <FormularioGerador onSubmit={handleGerarQuestoes} carregando={carregando} nomeProfessor={usuario.nome} />
       ) : (
         <ListaQuestoes
           questoes={questoes}
           nomeProfessor={usuario.nome}
-          dadosFormulario={dadosForm}
+          dadosFormulario={dadosFormulario}
           onReset={handleReset}
-          onUpdateQuestao={handleUpdateQuestao}
-          onDeleteQuestao={handleDeleteQuestao}
+          onUpdateQuestao={(index, questao) => {
+            const novasQuestoes = [...questoes];
+            novasQuestoes[index] = questao;
+            setQuestoes(novasQuestoes);
+          }}
+          onDeleteQuestao={(index) => {
+            setQuestoes(questoes.filter((_, i) => i !== index));
+          }}
         />
       )}
-
-      {erro && <Typography color="error" align="center" sx={{ mt: 2 }}>{erro}</Typography>}
+      {erro && <Alert severity="error" sx={{ mt: 2 }}>{erro}</Alert>}
     </>
   );
 };
 
-// --- Componente Principal App.jsx ---
+
+// --- COMPONENTE MESTRE: App ---
 export default function App() {
-  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [token, setToken] = useState(() => localStorage.getItem('token'));
   const [usuario, setUsuario] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+
   useEffect(() => {
     const fetchUsuario = async () => {
       if (token) {
+        setAuthLoading(true);
         try {
           const response = await axios.get('http://127.0.0.1:8000/professores/me/', { headers: { 'Authorization': `Bearer ${token}` } });
           setUsuario(response.data);
-        } catch (error) { handleLogout(); }
-      } else { setUsuario(null); }
+        } catch (error) {
+          handleLogout();
+        } finally {
+          setAuthLoading(false);
+        }
+      } else {
+        setAuthLoading(false);
+      }
     };
     fetchUsuario();
   }, [token]);
-  const handleLoginSuccess = (newToken) => { localStorage.setItem('token', newToken); setToken(newToken); };
-  const handleLogout = () => { localStorage.removeItem('token'); setToken(null); };
+
+  const handleLoginSuccess = (newToken) => {
+    localStorage.setItem('token', newToken);
+    setToken(newToken);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setToken(null);
+    setUsuario(null);
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: 'background.default' }}>
         <Box component="main" sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', p: 2 }}>
           <Grid container justifyContent="center">
             <Grid item xs={11} sm={10} md={8} lg={7} xl={6}>
@@ -598,14 +464,14 @@ export default function App() {
                 <Typography variant="subtitle1" color="text.secondary">Crie avaliações personalizadas com o poder da IA</Typography>
               </Box>
               <Paper elevation={4} sx={{ p: { xs: 3, sm: 5 }, width: '100%' }}>
-                {token && !usuario ? (<Box sx={{ display: 'flex', justifyContent: 'center' }}><CircularProgress /></Box>)
+                {authLoading ? (<Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}><CircularProgress /></Box>)
                   : !usuario ? (<TelaAutenticacao onLoginSuccess={handleLoginSuccess} />)
                     : (<TelaPrincipal usuario={usuario} token={token} onLogout={handleLogout} />)}
               </Paper>
             </Grid>
           </Grid>
         </Box>
-        <Box component="footer" sx={{ textAlign: 'center', py: 2 }}>
+        <Box component="footer" sx={{ textAlign: 'center', py: 2, mt: 'auto' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
             <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '0.8rem' }}>Powered by</Typography>
             <img src="/gemini_logo.png" alt="Logo da Tecnologia" style={{ width: '60px', height: 'auto' }} />
